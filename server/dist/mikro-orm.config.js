@@ -9,7 +9,7 @@ const path_1 = __importDefault(require("path"));
 const config = {
     dbName: "reddit",
     migrations: {
-        path: path_1.default.join(__dirname, "..", "src", "migrations"),
+        path: path_1.default.join(__dirname, "migrations"),
         pattern: /^[\w-]+\d+\.[tj]s$/,
     },
     user: "postgres",
