@@ -46,7 +46,7 @@ const Login: React.FC<loginProps> = ({}) => {
               isLoading={isSubmitting}
               variantColor="teal"
             >
-              register
+              login
             </Button>
           </Form>
         )}

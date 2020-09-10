@@ -12,16 +12,3 @@ mutation Register($username: String!, $password: String!) {
     }
   }
 }
-
-mutation Login($username: String!, $password: String!) {
-  login(options: { username: $username, password: $password }) {
-    errors {
-      field
-      message
-    }
-    user {
-      username
-      id
-    }
-  }
-}
