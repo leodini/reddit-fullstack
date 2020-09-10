@@ -96,7 +96,7 @@ export class UserResolver {
       return { user: newUser };
     } catch (error) {
       //checking if user already exists
-      if (error.code === "23505" || error.detail.includes("already exists")) {
+      if (error.detail.includes("already exists")) {
         return {
           errors: [
             {
