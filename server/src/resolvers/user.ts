@@ -41,9 +41,23 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { req }: MyContext) {
+    const { userId } = req.session;
+
+    if (!userId) {
+      return null;
+    }
+
+    const user = await User.findOne({ id: userId });
+
+    return user;
+  }
+
   @Mutation(() => UserResponse)
   async register(
-    @Arg("options") options: UsernamePasswordInput
+    @Arg("options") options: UsernamePasswordInput,
+    @Ctx() { req }: MyContext
   ): Promise<UserResponse | undefined> {
     if (options.username.length <= 3) {
       return {
@@ -68,11 +82,16 @@ export class UserResolver {
     }
 
     const hashedPassword = await argon2.hash(options.password);
+
     try {
       const newUser = await User.create({
         username: options.username,
         password: hashedPassword,
       }).save();
+
+      //set a cookie on the user
+      //keep them logged in
+      req.session.userId = newUser.id;
 
       return { user: newUser };
     } catch (error) {
