@@ -15,7 +15,7 @@ import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
-import { getConnection } from "typeorm";
+
 @ObjectType()
 class FieldError {
   @Field()
@@ -68,7 +68,8 @@ export class UserResolver {
       };
     }
 
-    const user = await User.findOne({ id: parseInt(userId) });
+    const userIdNum = parseInt(userId);
+    const user = await User.findOne({ id: userIdNum });
 
     if (!user) {
       return {
@@ -81,8 +82,8 @@ export class UserResolver {
       };
     }
 
-    user.password = await argon2.hash(newPassword);
-    await user.save();
+    const hashedPassword = await argon2.hash(newPassword);
+    await User.update({ id: userIdNum }, { password: hashedPassword });
 
     await redis.del(key);
 
@@ -94,7 +95,7 @@ export class UserResolver {
     @Arg("email") email: string,
     @Ctx() { redis }: MyContext
   ) {
-    const user = await User.findOne({ where: { email: email } });
+    const user = await User.findOne({ where: { email } });
     if (!user) {
       return true;
     }
@@ -176,8 +177,8 @@ export class UserResolver {
   ): Promise<UserResponse> {
     const user = await User.findOne({
       where: usernameOrEmail.includes("@")
-        ? { email: usernameOrEmail }
-        : { username: usernameOrEmail },
+        ? { where: { email: usernameOrEmail } }
+        : { where: { username: usernameOrEmail } },
     });
 
     if (!user) {
